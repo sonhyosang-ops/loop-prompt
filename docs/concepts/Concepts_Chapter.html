@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>루프 프롬프팅 개념과 원리 — Loop Prompt 핸드북</title>
+  <style>
+    :root {
+      --bg: #ffffff; --bg2: #f6f8fa; --bg3: #eef1f4; --border: #d0d7de;
+      --text: #1f2328; --text-dim: #636c76;
+      --accent: #0969da; --accent2: #1a7f37; --accent4: #6639ba; --accent6: #0550ae;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); line-height: 1.85; font-size: 16px; -webkit-font-smoothing: antialiased; }
+    .layout { display: flex; min-height: 100vh; }
+    nav { width: 260px; min-width: 260px; background: var(--bg2); border-right: 1px solid var(--border); position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 20px 0; }
+    nav .nav-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-dim); padding: 0 16px 8px; }
+    nav a { display: block; padding: 6px 16px; color: var(--text-dim); text-decoration: none; font-size: 13px; border-left: 2px solid transparent; transition: all .15s; }
+    nav a:hover { color: var(--accent); background: var(--bg3); border-left-color: var(--accent); }
+    nav .nav-section { margin-top: 12px; padding: 6px 16px 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-dim); }
+    main { flex: 1; display: flex; justify-content: center; padding: 56px 48px 96px; overflow-x: hidden; }
+    .reading { width: 100%; max-width: 720px; }
+    .chapter-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+    h1 { font-size: 2.3rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.25; margin-bottom: 14px; }
+    .lead { font-size: 1.12rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 8px; }
+    .source-line { font-size: 13px; color: var(--text-dim); margin-bottom: 30px; }
+    .source-line a { color: var(--accent); text-decoration: none; }
+    .keypoints { background: #f0f7ff; border: 1px solid #a5d5f7; border-left: 4px solid var(--accent); border-radius: 8px; padding: 18px 22px; margin: 0 0 40px; }
+    .keypoints .kp-title { font-weight: 700; color: var(--accent6); font-size: 14px; margin-bottom: 8px; }
+    .keypoints ul { margin: 0 0 0 18px; font-size: 14.5px; line-height: 1.85; }
+    h2 { font-size: 1.5rem; font-weight: 700; color: var(--text); margin: 52px 0 14px; scroll-margin-top: 20px; line-height: 1.35; }
+    h3 { font-size: 1.12rem; font-weight: 700; color: var(--accent6); margin: 30px 0 8px; scroll-margin-top: 20px; }
+    p { margin: 14px 0; }
+    p + p { margin-top: 16px; }
+    ul, ol { margin: 12px 0 16px 22px; }
+    li { margin: 6px 0; }
+    .pullquote { border-left: 3px solid var(--accent); padding: 6px 0 6px 22px; margin: 28px 0; font-size: 1.22rem; line-height: 1.6; color: #2b3138; font-weight: 600; }
+    .pullquote .by { display: block; font-size: 13px; font-weight: 500; color: var(--text-dim); margin-top: 8px; }
+    .note { background: #e8f4fd; border-left: 3px solid var(--accent); padding: 10px 16px; border-radius: 4px; font-size: 15px; margin: 18px 0; }
+    code { font-family: 'SFMono-Regular','Consolas','Liberation Mono',monospace; font-size: 13px; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 4px; padding: 1px 6px; color: #cf222e; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 14px; }
+    th { background: var(--bg3); color: var(--accent6); text-align: left; padding: 10px 14px; font-weight: 600; border: 1px solid var(--border); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+    td { padding: 9px 14px; border: 1px solid var(--border); vertical-align: top; }
+    tr:nth-child(even) td { background: #f6f8fa; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .chapter-nav { display: flex; justify-content: space-between; gap: 16px; margin-top: 64px; border-top: 1px solid var(--border); padding-top: 24px; }
+    .chapter-nav a { display: block; flex: 1; padding: 14px 18px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); transition: border-color .15s; }
+    .chapter-nav a:hover { border-color: var(--accent); text-decoration: none; }
+    .chapter-nav .dir { font-size: 12px; color: var(--text-dim); }
+    .chapter-nav .ttl { font-weight: 600; margin-top: 2px; }
+    .chapter-nav .next { text-align: right; }
+    @media (max-width: 640px) { main { padding: 40px 18px 60px; } .chapter-nav { flex-direction: column; } }
+  </style>
+</head>
+<body>
+<div class="layout">
+<nav>
+  <a href="../index.html" style="font-weight:700;color:#0969da;margin-bottom:8px;border-bottom:1px solid #d0d7de;padding-bottom:10px;">← 핸드북 홈</a>
+  <div class="nav-title">1장 · 루프 프롬프팅 개념</div>
+  <a href="#s1">루프 프롬프팅이란?</a>
+  <a href="#s2">루프의 네 가지 유형</a>
+  <a href="#s3">LLM 자기 수정 원리</a>
+  <a href="#s4">NFC 학급 관리와 루프</a>
+  <div class="nav-section">다른 장</div>
+  <a href="../tools/Tools_Manual.html">2장: 루프 도구 레퍼런스</a>
+  <a href="../patterns/Patterns_Manual.html">3장: 루프 설계 패턴</a>
+</nav>
+<main>
+ <article class="reading">
+  <div class="chapter-eyebrow">1장</div>
+  <h1>루프 프롬프팅 개념과 원리</h1>
+  <p class="lead">루프 프롬프팅은 AI 에이전트가 단 한 번의 응답으로 끝내는 대신, 조건이 충족될 때까지 작업을 반복하도록 설계하는 방식이다. 이 장에서는 루프의 본질적 의미와 네 가지 유형, 그리고 LLM이 스스로를 수정하는 원리를 살펴본다.</p>
+  <p class="source-line">출처: <a href="https://claude.com/blog/getting-started-with-loops" target="_blank">Getting Started with Loops — claude.com</a>, <a href="https://code.claude.com/docs/en/commands" target="_blank">Claude Code Commands Reference</a></p>
+
+  <div class="keypoints">
+    <div class="kp-title">이 장에서 다루는 것</div>
+    <ul>
+      <li>루프 프롬프팅의 정의와 기존 단발성 프롬프팅과의 차이</li>
+      <li>Turn-Based · Goal-Based · Time-Based · Proactive, 네 가지 루프 유형과 각각의 적합한 상황</li>
+      <li>Self-Refinement, Reflexion 등 LLM 자기 수정 연구의 핵심 원리</li>
+      <li>NFC 리드 기반 학급 관리 시스템에서 루프를 어떻게 활용할 수 있는지</li>
+    </ul>
+  </div>
+
+  <h2 id="s1">루프 프롬프팅이란?</h2>
+
+  <p>전통적인 프롬프팅은 사용자가 질문을 입력하면 모델이 한 번 응답하고 끝나는 단발성 구조다. 이 방식은 단순한 질의응답이나 코드 조각 생성에는 충분하지만, 복잡한 목표를 추구하거나 외부 시스템 상태를 지속적으로 확인해야 할 때는 한계가 드러난다.</p>
+
+  <p>루프 프롬프팅은 이 한계를 넘는다. Claude Code 팀의 정의를 빌리면, "에이전트가 중단 조건이 충족될 때까지 작업 주기를 반복하는 것"이다. 에이전트는 맥락을 수집하고, 행동하고, 결과를 점검하는 주기를 반복하다가 목표가 달성되거나 정해진 조건이 충족되면 멈춘다.</p>
+
+  <div class="pullquote">루프 엔지니어링이란, 매번 프롬프트를 직접 입력하는 대신 AI를 일정에 따라 목표를 향해 자동으로 프롬프팅하는 시스템을 만드는 것이다.
+    <span class="by">— Sabrina Ramonov, Loop Engineering in Claude Code</span>
+  </div>
+
+  <p>이 개념은 단순히 "반복 실행"에 그치지 않는다. 루프 안에서 에이전트는 이전 결과를 보고, 오류를 감지하고, 전략을 수정하며, 외부 도구를 호출하는 복합적인 작업을 수행한다. 덕분에 사람이 모든 중간 단계를 직접 감독하지 않아도 장기 작업이 진전된다.</p>
+
+  <div class="note">루프의 핵심은 <strong>중단 조건</strong>이다. 언제 멈출지를 명확히 정의하지 않으면 루프는 의도치 않게 계속 돌거나 너무 일찍 멈춘다.</div>
+
+  <h3>단발성 프롬프팅과의 차이</h3>
+
+  <p>단발성 프롬프팅에서는 사용자가 매 단계를 직접 판단하고 다음 프롬프트를 입력해야 한다. NFC 학급 관리 시스템을 예로 들면, "현재 NFC 리더 연결 상태를 확인해줘" → 결과 확인 → "오류가 있으면 재시도해줘" → 결과 확인 → … 식으로 사람이 계속 개입해야 한다.</p>
+
+  <p>루프 프롬프팅에서는 이 과정을 에이전트가 자율적으로 처리한다. "<code>/loop 30s</code> NFC 리더 상태를 확인하고, 연결이 끊기면 재연결 절차를 실행해줘"라고 한 번 지시하면, 에이전트가 지정된 간격으로 상태를 점검하고 문제를 발견하면 스스로 조치를 취한다.</p>
+
+  <h2 id="s2">루프의 네 가지 유형</h2>
+
+  <p>Claude Code는 루프를 트리거 방식과 중단 조건에 따라 네 가지 유형으로 분류한다. 각 유형은 서로 다른 상황에 적합하며, 같은 작업이라도 어떤 유형을 선택하느냐에 따라 효율이 크게 달라진다.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>유형</th>
+        <th>트리거</th>
+        <th>중단 조건</th>
+        <th>적합한 상황</th>
+        <th>Claude Code 도구</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Turn-Based</strong></td>
+        <td>사용자 수동 입력</td>
+        <td>사용자 판단</td>
+        <td>단기·비반복 탐색 작업</td>
+        <td>일반 대화</td>
+      </tr>
+      <tr>
+        <td><strong>Goal-Based</strong></td>
+        <td>실시간 수동 프롬프트</td>
+        <td>목표 달성 또는 최대 턴 도달</td>
+        <td>검증 가능한 완료 기준이 있는 작업</td>
+        <td><code>/goal</code></td>
+      </tr>
+      <tr>
+        <td><strong>Time-Based</strong></td>
+        <td>지정된 시간 간격</td>
+        <td>취소 또는 작업 완료</td>
+        <td>반복 모니터링·외부 시스템 확인</td>
+        <td><code>/loop</code>, <code>/schedule</code></td>
+      </tr>
+      <tr>
+        <td><strong>Proactive</strong></td>
+        <td>이벤트 또는 일정</td>
+        <td>개별 작업 목표 달성</td>
+        <td>정기 자동화·자율 운영</td>
+        <td><code>/schedule</code> + Auto Mode</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Turn-Based 루프</h3>
+  <p>가장 익숙한 형태다. 사용자가 프롬프트를 입력하면 에이전트가 응답하고, 사용자가 결과를 보고 다음 프롬프트를 입력한다. 에이전트는 매 차례 맥락을 수집하고, 행동하고, 결과를 사용자에게 보고한다. 방향을 직접 잡아야 하는 탐색적 작업이나 결과를 매번 직접 검토해야 하는 상황에 적합하다.</p>
+
+  <h3>Goal-Based 루프</h3>
+  <p><code>/goal</code> 명령을 사용한다. 사용자가 달성하려는 목표와 검증 조건을 정의하면, 에이전트는 목표가 충족되거나 사전에 정한 최대 턴에 도달할 때까지 스스로 작업을 반복한다. 중요한 점은 에이전트가 "충분히 좋은 수준"을 임의로 판단하는 것이 아니라, 사용자가 명시한 기준에 도달했는지를 확인한다는 점이다.</p>
+
+  <h3>Time-Based 루프</h3>
+  <p><code>/loop</code>와 <code>/schedule</code>이 여기에 속한다. <code>/loop</code>는 로컬 세션에서 지정된 간격으로 반복하며, <code>/schedule</code>은 Anthropic 클라우드 인프라에서 실행된다. 외부 시스템 상태를 폴링하거나, 배포 완료를 기다리거나, 정기 보고서를 자동 생성하는 등 시간 기반 트리거가 필요한 상황에 이상적이다.</p>
+
+  <h3>Proactive 루프</h3>
+  <p>사람의 실시간 개입 없이 작동한다. <code>/schedule</code>, <code>/goal</code>, Auto Mode를 조합해 특정 이벤트나 일정에 따라 자율적으로 작업을 실행한다. 버그 리포트 처리, 이슈 분류, 데이터 마이그레이션처럼 잘 정의된 반복 작업에 적합하다. 소규모 데이터로 먼저 검증한 뒤 확장하는 접근이 권장된다.</p>
+
+  <h2 id="s3">LLM 자기 수정 원리</h2>
+
+  <p>루프 프롬프팅이 효과적인 이유 중 하나는 LLM이 자신의 출력을 검토하고 개선할 수 있기 때문이다. 연구 분야에서는 이를 자기 수정(self-correction) 또는 자기 개선(self-refinement)이라고 부른다.</p>
+
+  <h3>Self-Refinement</h3>
+  <p>SELF-REFINE 프레임워크는 모델이 초기 응답을 생성한 뒤, 그 응답에 대한 비판적 피드백을 스스로 생성하고, 피드백에 따라 응답을 수정하는 루프를 돌린다. 외부 감독 없이 반복적으로 품질을 높이는 방식이다. 핵심은 "생성 → 비판 → 수정"의 주기를 명시적으로 반복하도록 설계한다는 점이다.</p>
+
+  <h3>Reflexion</h3>
+  <p>Reflexion은 에이전트가 과거 시도의 실패 원인을 언어적 기억(verbal memory)으로 저장하고, 이를 다음 시도에서 참조해 같은 실수를 반복하지 않도록 한다. 단순한 재시도가 아니라, 왜 실패했는지를 이해하고 전략을 바꾸는 구조적 개선이다.</p>
+
+  <h3>Meta-Prompting</h3>
+  <p>LLM이 자신의 프롬프트를 스스로 개선하는 방식이다. 초기 프롬프트로 작업을 수행하고, 그 결과를 분석해 더 효과적인 프롬프트를 생성한 뒤 다시 실행한다. 2026년의 추론 시간 확장(inference-time scaling) 연구에서 핵심 기법 중 하나로 주목받고 있다.</p>
+
+  <div class="note">자기 수정이 항상 효과적이지는 않다. 모델이 잘못된 판단을 자신 있게 고수하는 경우(환각 강화), 수정 루프가 품질을 오히려 낮출 수 있다. 명확한 외부 검증 기준을 함께 설계하는 것이 중요하다.</div>
+
+  <h2 id="s4">NFC 학급 관리 시스템과 루프 프롬프팅</h2>
+
+  <p>NFC 리드 시스템을 활용한 학급 관리 시스템은 루프 프롬프팅의 실용적 가치를 잘 보여주는 도메인이다. 학생이 NFC 카드를 태그하면 출석이 기록되고, 교사는 실시간으로 현황을 확인하며, 시스템은 이상 징후를 자동으로 감지한다.</p>
+
+  <p>이 시스템에서 루프 프롬프팅은 세 가지 층위에서 활용된다. 첫째, NFC 리더의 연결 상태와 카드 읽기 성공률을 주기적으로 확인하는 <em>모니터링 루프</em>가 있다. 둘째, 출석 데이터의 일관성을 검증하고 오류를 자동으로 수정하는 <em>자기 수정 루프</em>가 있다. 셋째, 매일 정해진 시간에 출석 보고서를 생성하고 담당 교사에게 전달하는 <em>자율 실행 루프</em>가 있다.</p>
+
+  <p>이어지는 장에서는 Claude Code의 구체적인 도구와 함께 이 각각을 어떻게 구현하는지 살펴볼 것이다.</p>
+
+  <div class="chapter-nav">
+    <a href="../index.html" class="prev"><div class="dir">← 핸드북 홈</div><div class="ttl">Loop Prompt 핸드북</div></a>
+    <a href="../tools/Tools_Manual.html" class="next"><div class="dir">다음 장 →</div><div class="ttl">Claude Code 루프 도구 레퍼런스</div></a>
+  </div>
+ </article>
+</main>
+</div>
+  <script src="../assets/inpage-search.js" defer></script>
+</body>
+</html>

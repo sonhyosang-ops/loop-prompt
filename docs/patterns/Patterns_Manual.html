@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>루프 설계 패턴 레퍼런스 — Loop Prompt 핸드북</title>
+  <style>
+    :root {
+      --bg: #ffffff; --bg2: #f6f8fa; --bg3: #eef1f4; --border: #d0d7de;
+      --text: #1f2328; --text-dim: #636c76;
+      --accent: #0969da; --accent2: #1a7f37; --accent3: #953800; --accent4: #6639ba; --accent5: #cf222e; --accent6: #0550ae;
+      --code-bg: #f6f8fa; --code-border: #d0d7de;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 15px; }
+    .layout { display: flex; min-height: 100vh; }
+    nav { width: 260px; min-width: 260px; background: var(--bg2); border-right: 1px solid var(--border); position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 20px 0; }
+    nav .nav-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-dim); padding: 0 16px 8px; }
+    nav a { display: block; padding: 6px 16px; color: var(--text-dim); text-decoration: none; font-size: 13px; border-left: 2px solid transparent; transition: all .15s; }
+    nav a:hover { color: var(--accent); background: var(--bg3); border-left-color: var(--accent); }
+    nav .nav-section { margin-top: 12px; padding: 6px 16px 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-dim); }
+    main { flex: 1; max-width: 900px; padding: 40px 48px; overflow-x: hidden; }
+    h1 { font-size: 2rem; font-weight: 700; color: #1f2328; margin-bottom: 6px; }
+    .subtitle { color: var(--text-dim); font-size: 13px; margin-bottom: 32px; }
+    .subtitle a { color: var(--accent); text-decoration: none; }
+    h2 { font-size: 1.25rem; font-weight: 700; color: var(--accent6); margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); scroll-margin-top: 20px; }
+    h3 { font-size: 1rem; font-weight: 700; color: var(--accent3); margin: 28px 0 8px; scroll-margin-top: 20px; }
+    p { margin: 8px 0; color: var(--text); }
+    pre.code-block { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; padding: 14px 18px; overflow-x: auto; font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace; font-size: 13px; line-height: 1.5; color: #116329; margin: 8px 0 16px; }
+    code { font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace; font-size: 12px; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 4px; padding: 2px 6px; color: #cf222e; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13.5px; }
+    th { background: var(--bg3); color: var(--accent6); text-align: left; padding: 10px 14px; font-weight: 600; border: 1px solid var(--border); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+    td { padding: 9px 14px; border: 1px solid var(--border); vertical-align: top; color: var(--text); }
+    tr:nth-child(even) td { background: #f6f8fa; }
+    .pattern-card { border: 1px solid var(--border); border-radius: 10px; margin: 20px 0 32px; overflow: hidden; }
+    .pattern-header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
+    .pattern-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: .05em; }
+    .pb-polling { background: #ddf4ff; color: #0550ae; border: 1px solid #a5d5f7; }
+    .pb-correction { background: #dafbe1; color: #116329; border: 1px solid #a2d9b1; }
+    .pb-goal { background: #fff8c5; color: #953800; border: 1px solid #f5c518; }
+    .pb-multi { background: #fbefff; color: #6639ba; border: 1px solid #d2b9ff; }
+    .pattern-title { font-size: 1.05rem; font-weight: 700; color: #1f2328; }
+    .pattern-body { padding: 20px 24px; }
+    .pattern-when { background: #f0f7ff; border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 10px 14px; margin-bottom: 14px; font-size: 13.5px; }
+    .pattern-when::before { content: '적용 조건'; display: block; font-weight: 700; color: #0550ae; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+    .warning-box { background: #fff8c5; border: 1px solid #d4a72c; border-radius: 6px; padding: 12px 16px; font-size: 13px; color: #7d4e00; margin: 12px 0; }
+    .warning-box::before { content: '⚠️  '; }
+    hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+    .version-box { background: #f0f7ff; border: 1px solid #a5d5f7; border-left: 4px solid #0969da; border-radius: 6px; padding: 14px 18px; margin: 16px 0 32px; font-size: 13px; }
+    .version-row { display: flex; gap: 12px; padding: 3px 0; border-bottom: 1px solid #d0e8ff; }
+    .version-row:last-child { border-bottom: none; }
+    .vlabel { min-width: 180px; font-weight: 600; color: #0550ae; flex-shrink: 0; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    ol, ul { margin: 8px 0 16px 20px; line-height: 2; }
+  </style>
+</head>
+<body>
+<div class="layout">
+<nav>
+  <a href="../index.html" style="font-weight:700;color:#0969da;margin-bottom:8px;border-bottom:1px solid #d0d7de;padding-bottom:10px;">← 핸드북 홈</a>
+  <div class="nav-title">루프 설계 패턴</div>
+  <a href="#overview">패턴 선택 가이드</a>
+  <div class="nav-section">4가지 패턴</div>
+  <a href="#polling">폴링 패턴</a>
+  <a href="#correction">자기 수정 패턴</a>
+  <a href="#goal-oriented">목표 지향 패턴</a>
+  <a href="#multi-agent">멀티 에이전트 루프</a>
+  <div class="nav-section">참고</div>
+  <a href="#refs">참고 링크</a>
+</nav>
+<main>
+  <h1>루프 설계 패턴 레퍼런스</h1>
+  <p class="subtitle">반복 실행 루프를 어떻게 설계할지 — 4가지 핵심 패턴의 구조·적용 조건·주의 사항 &nbsp;|&nbsp; <a href="Patterns_Examples.html">실습 예시 →</a></p>
+
+  <div class="version-box">
+    <div class="version-row"><span class="vlabel">대상 버전</span><span>Claude Code 2026.07</span></div>
+    <div class="version-row"><span class="vlabel">참조 문서 URL</span><span><a href="https://code.claude.com/docs/en/commands" target="_blank">code.claude.com/docs/en/commands</a>, <a href="https://claude.com/blog/getting-started-with-loops" target="_blank">Getting Started with Loops</a></span></div>
+    <div class="version-row"><span class="vlabel">문서 수집일</span><span>2026-07-04</span></div>
+  </div>
+
+  <h2 id="overview">패턴 선택 가이드</h2>
+  <p>루프를 설계할 때 가장 먼저 결정해야 할 것은 "무엇을 기다리는가"다. 답에 따라 아래 네 가지 패턴 중 하나를 선택한다.</p>
+  <table>
+    <thead><tr><th>패턴</th><th>핵심 질문</th><th>중단 조건</th><th>사용 도구</th></tr></thead>
+    <tbody>
+      <tr><td><strong>폴링</strong></td><td>외부 시스템 상태가 바뀌었는가?</td><td>상태 변화 감지 또는 취소</td><td><code>/loop</code></td></tr>
+      <tr><td><strong>자기 수정</strong></td><td>내 출력이 기준을 충족하는가?</td><td>검증 통과 또는 최대 시도</td><td><code>/goal</code></td></tr>
+      <tr><td><strong>목표 지향</strong></td><td>정의된 완료 기준에 도달했는가?</td><td>기준 충족 또는 턴 제한</td><td><code>/goal</code></td></tr>
+      <tr><td><strong>멀티 에이전트</strong></td><td>병렬로 처리할 독립적 작업이 있는가?</td><td>모든 에이전트 완료</td><td><code>Agent</code> + <code>/goal</code></td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2 id="polling">1. 폴링 패턴 (Polling Pattern)</h2>
+
+  <div class="pattern-card">
+    <div class="pattern-header">
+      <span class="pattern-badge pb-polling">폴링</span>
+      <span class="pattern-title">외부 상태를 주기적으로 확인해 변화에 반응하는 패턴</span>
+    </div>
+    <div class="pattern-body">
+      <div class="pattern-when">
+        외부 시스템(API, 파일, 프로세스)의 상태 변화를 기다리거나 이상을 감지해야 할 때. 변화를 즉시 알 수 없고 주기적으로 확인해야 하는 상황에 적합하다.
+      </div>
+
+      <h3>구조</h3>
+      <pre class="code-block"># 기본 폴링 구조
+/loop [interval] [상태 확인 프롬프트]
+
+# 예: NFC 리더 상태 폴링
+/loop 60s GET /api/reader/status 를 호출해서 상태를 확인하고,
+"connected" 이외의 상태면 관리자에게 Slack 알림을 보내줘</pre>
+
+      <h3>인터벌 설계 원칙</h3>
+      <p>인터벌은 실제 변화 주기를 고려해 설정한다. 너무 짧으면 불필요한 API 비용과 속도 제한이 발생하고, 너무 길면 변화를 놓친다.</p>
+      <table>
+        <thead><tr><th>상황</th><th>권장 인터벌</th><th>이유</th></tr></thead>
+        <tbody>
+          <tr><td>NFC 리더 상태 확인</td><td>30s – 60s</td><td>연결 끊김을 빠르게 감지해야 하지만 초 단위 변화는 아님</td></tr>
+          <tr><td>CI/CD 빌드 완료 대기</td><td>60s – 120s</td><td>빌드는 보통 수분 걸림, 짧은 폴링은 낭비</td></tr>
+          <tr><td>배포 완료 대기</td><td>120s – 270s</td><td>배포는 수분~수십 분, 캐시 유지 범위 안에서 최대한 길게</td></tr>
+          <tr><td>일일 보고서 생성</td><td><code>/schedule</code> 사용</td><td>시간 기반 트리거는 클라우드 루틴이 더 적합</td></tr>
+        </tbody>
+      </table>
+
+      <div class="warning-box">폴링 루프에 "이상이 발견되면 X를 실행해줘" 같은 지시를 포함할 때는, 조치 범위를 명확히 제한해야 한다. 범위가 넓으면 의도치 않은 수정이 발생할 수 있다.</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2 id="correction">2. 자기 수정 패턴 (Self-Correction Pattern)</h2>
+
+  <div class="pattern-card">
+    <div class="pattern-header">
+      <span class="pattern-badge pb-correction">자기 수정</span>
+      <span class="pattern-title">출력을 검증하고 기준 미달 시 스스로 수정을 반복하는 패턴</span>
+    </div>
+    <div class="pattern-body">
+      <div class="pattern-when">
+        생성된 결과물(코드, 데이터, 문서)이 정해진 기준을 충족해야 하며, 자동화된 검증 도구가 있을 때. NFC 출석 데이터 무결성 검사처럼 통과/실패가 명확한 상황에 적합하다.
+      </div>
+
+      <h3>구조</h3>
+      <pre class="code-block"># 기본 자기 수정 구조 (/goal 활용)
+/goal [검증 기준이 충족될 때까지 수정], 최대 N번 시도
+
+# 예: 출석 데이터 무결성 수정
+/goal bash validate_attendance.sh 실행 결과에 오류가 없을 때까지
+attendance.json의 중복·누락을 수정해줘. 최대 10번 시도 후 멈춰</pre>
+
+      <h3>효과적인 자기 수정 루프의 요건</h3>
+      <ol style="margin: 8px 0 16px 20px; line-height: 2;">
+        <li><strong>외부 검증 도구:</strong> 주관적 판단이 아니라, 스크립트·테스트·린터처럼 명확한 기준을 제공하는 도구가 있어야 한다</li>
+        <li><strong>최대 시도 횟수:</strong> 무한 루프를 방지하기 위해 반드시 상한선을 설정한다</li>
+        <li><strong>실패 보고:</strong> 최대 시도를 소진하면 해결하지 못한 항목 목록을 보고하도록 지시한다</li>
+      </ol>
+
+      <div class="warning-box">자기 수정 루프는 파일을 반복 수정할 수 있다. 실행 전에 git commit 또는 백업으로 원본을 보존해야 한다.</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2 id="goal-oriented">3. 목표 지향 패턴 (Goal-Oriented Pattern)</h2>
+
+  <div class="pattern-card">
+    <div class="pattern-header">
+      <span class="pattern-badge pb-goal">목표 지향</span>
+      <span class="pattern-title">달성 기준을 명시하고 에이전트가 자율적으로 방법을 선택하는 패턴</span>
+    </div>
+    <div class="pattern-body">
+      <div class="pattern-when">
+        목표(what)는 명확하지만, 달성 방법(how)은 에이전트가 유연하게 선택해야 하는 상황. 여러 접근법을 시도해볼 수 있는 탐색적 작업에 적합하다.
+      </div>
+
+      <h3>구조</h3>
+      <pre class="code-block"># 기본 목표 지향 구조
+/goal [달성해야 할 상태를 기술], [안전장치: 턴 제한·금지 사항]
+
+# 예: NFC 시스템 성능 목표
+/goal classroom-nfc API의 응답 시간이 200ms 이하가 되도록 최적화해줘.
+데이터베이스 스키마 변경이나 의존성 추가 없이, 최대 5번 시도 후 중단해줘</pre>
+
+      <h3>좋은 목표 기술의 요소</h3>
+      <table>
+        <thead><tr><th>요소</th><th>예시</th><th>목적</th></tr></thead>
+        <tbody>
+          <tr><td>측정 가능한 완료 기준</td><td>"응답 시간 200ms 이하"</td><td>에이전트가 완료 여부를 판단할 수 있게</td></tr>
+          <tr><td>행동 제약</td><td>"스키마 변경 없이"</td><td>의도치 않은 범위 확장 방지</td></tr>
+          <tr><td>시도 횟수 상한</td><td>"최대 5번 시도"</td><td>무한 루프 방지</td></tr>
+          <tr><td>실패 처리</td><td>"해결 못하면 목록 보고"</td><td>결과의 가시성 확보</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2 id="multi-agent">4. 멀티 에이전트 루프 (Multi-Agent Loop)</h2>
+
+  <div class="pattern-card">
+    <div class="pattern-header">
+      <span class="pattern-badge pb-multi">멀티 에이전트</span>
+      <span class="pattern-title">여러 에이전트가 병렬로 독립적 작업을 처리하는 패턴</span>
+    </div>
+    <div class="pattern-body">
+      <div class="pattern-when">
+        처리해야 할 작업이 여러 개이고 서로 독립적일 때. NFC 리더가 여러 교실에 설치돼 있거나, 여러 학급의 출석 데이터를 동시에 검증해야 하는 상황에 적합하다.
+      </div>
+
+      <h3>구조</h3>
+      <pre class="code-block"># 병렬 에이전트로 여러 학급 출석 데이터 동시 검증
+각 학급(1학년~3학년) 폴더의 attendance.json 파일을 동시에 검증해줘.
+각 학급은 독립적인 서브에이전트가 처리하고, 모두 완료되면 결과를 합산해 보고해줘</pre>
+
+      <h3>멀티 에이전트 루프 설계 원칙</h3>
+      <ol style="margin: 8px 0 16px 20px; line-height: 2;">
+        <li><strong>독립성 확인:</strong> 각 에이전트의 작업이 서로 영향을 주지 않아야 한다. 같은 파일을 동시에 수정하면 충돌이 발생한다</li>
+        <li><strong>결과 집합:</strong> 모든 에이전트가 완료된 뒤 결과를 통합하는 주체(오케스트레이터)를 명시한다</li>
+        <li><strong>오류 격리:</strong> 한 에이전트의 실패가 전체를 중단시키지 않도록 각 에이전트는 독립적으로 오류를 처리한다</li>
+      </ol>
+
+      <div class="warning-box">멀티 에이전트 루프는 API 비용이 단일 에이전트보다 빠르게 증가한다. 병렬화의 이점이 비용을 상회하는지 먼저 소규모로 검증할 것.</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2 id="refs">참고 링크</h2>
+  <ul style="list-style: none; padding: 0; line-height: 2.2;">
+    <li>📖 <a href="https://code.claude.com/docs/en/commands" target="_blank">Claude Code Commands Reference — code.claude.com</a></li>
+    <li>📖 <a href="https://claude.com/blog/getting-started-with-loops" target="_blank">Getting Started with Loops — claude.com/blog</a></li>
+    <li>⚙️ <a href="Patterns_Examples.html">루프 설계 패턴 실습 예시 →</a></li>
+  </ul>
+
+  <hr>
+  <p style="margin-top: 24px; color: var(--text-dim); font-size: 12px;">Claude Code 2026.07 기준 | 2026년 7월 4일</p>
+</main>
+</div>
+  <script src="../assets/inpage-search.js" defer></script>
+</body>
+</html>

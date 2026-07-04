@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<!--
+  Loop Prompt 핸드북 — 학습 확인 문제 풀이
+  NFC 리드 기반 학급 관리 시스템 예시 도메인.
+  객관식 3문제 / 서술형 2문제 / 개념 Q&A 5문제.
+-->
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loop Prompt 문제 풀이</title>
+  <style>
+    :root {
+      --bg:#ffffff; --bg2:#f6f8fa; --bg3:#eef1f4; --border:#d0d7de;
+      --text:#1f2328; --text-dim:#636c76;
+      --accent:#0969da; --accent-g:#1a7f37; --accent-o:#953800; --accent-p:#6639ba; --accent-r:#cf222e; --accent6:#0550ae;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans KR',sans-serif; background:var(--bg); color:var(--text); line-height:1.75; font-size:15px; }
+    .layout { display:flex; min-height:100vh; }
+
+    nav { width:270px; min-width:270px; background:var(--bg2); border-right:1px solid var(--border); position:sticky; top:0; height:100vh; overflow-y:auto; padding:20px 0; }
+    nav .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-dim); padding:0 16px 10px; }
+    nav a { display:flex; align-items:center; gap:8px; padding:6px 16px; color:var(--text-dim); text-decoration:none; font-size:13px; border-left:2px solid transparent; transition:all .15s; }
+    nav a:hover { color:var(--accent); background:var(--bg3); border-left-color:var(--accent); }
+    nav .nav-group { margin-top:10px; padding:7px 16px 4px; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--text-dim); border-top:1px solid var(--border); }
+
+    main { flex:1; max-width:860px; padding:40px 52px; }
+    h1 { font-size:1.9rem; font-weight:700; margin-bottom:6px; }
+    .subtitle { color:var(--text-dim); font-size:13px; margin-bottom:24px; }
+    .subtitle a { color:var(--accent); text-decoration:none; }
+
+    .howto { background:#f0f7ff; border:1px solid #a5d5f7; border-left:4px solid #0969da; border-radius:6px; padding:12px 18px; margin-bottom:32px; font-size:13.5px; }
+    .howto strong { color:#0550ae; }
+
+    .level-header { display:flex; align-items:center; gap:12px; margin:44px 0 18px; padding-bottom:10px; border-bottom:2px solid var(--border); }
+    .level-title { font-size:1.25rem; font-weight:700; }
+    .level-desc { font-size:13px; color:var(--text-dim); }
+
+    .qbadge { display:inline-flex; align-items:center; font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:.04em; }
+    .qbadge-mcq  { background:#ddf4ff; color:#0550ae; border:1px solid #a5d5f7; }
+    .qbadge-essay{ background:#fbefff; color:#6639ba; border:1px solid #d2b9ff; }
+    .qbadge-qa   { background:#eef1f4; color:#636c76; border:1px solid #d0d7de; }
+    .lvl { display:inline-flex; align-items:center; font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; margin-left:2px; }
+    .lvl-g { background:#dafbe1; color:#116329; } .lvl-b { background:#ddf4ff; color:#0550ae; } .lvl-p { background:#fbefff; color:#6639ba; }
+
+    .q-card { border:1px solid var(--border); border-radius:10px; margin-bottom:22px; overflow:hidden; }
+    .q-head { display:flex; align-items:center; gap:10px; padding:13px 20px; background:var(--bg2); border-bottom:1px solid var(--border); }
+    .q-no { font-family:'SFMono-Regular','Consolas',monospace; font-size:12px; font-weight:700; color:var(--text-dim); }
+    .q-body { padding:18px 22px; }
+    .q-stem { font-size:15px; font-weight:600; margin-bottom:12px; display:block; }
+
+    ol.choices { list-style:none; margin:0 0 4px; padding:0; }
+    ol.choices li { padding:7px 12px; border:1px solid var(--border); border-radius:8px; margin-bottom:7px; font-size:14px; background:#fff; }
+    ol.choices li .num { font-weight:700; color:var(--accent6); margin-right:8px; }
+
+    .answer-field { width:100%; min-height:70px; border:1px solid var(--border); border-radius:8px; padding:10px 12px; font:inherit; font-size:13.5px; color:var(--text); resize:vertical; margin:4px 0 6px; }
+    .answer-note { font-size:11.5px; color:var(--text-dim); margin-bottom:10px; }
+
+    details.reveal { border:1px solid var(--border); border-radius:8px; margin-top:10px; background:#fff; }
+    details.reveal > summary { cursor:pointer; list-style:none; padding:9px 14px; font-size:13px; font-weight:600; color:var(--accent6); display:flex; align-items:center; gap:7px; user-select:none; }
+    details.reveal > summary::-webkit-details-marker { display:none; }
+    details.reveal > summary::before { content:'▶'; font-size:10px; color:var(--text-dim); transition:transform .15s; }
+    details.reveal[open] > summary::before { transform:rotate(90deg); }
+    details.reveal[open] > summary { border-bottom:1px solid var(--border); }
+    details.reveal .reveal-body { padding:12px 16px; font-size:13.5px; }
+    details.hint > summary { color:#7d4e00; }
+    .answer-line { font-weight:700; color:#116329; margin-bottom:8px; }
+    .rubric { border-left:3px solid #6639ba; background:#fbefff; padding:8px 14px; border-radius:0 6px 6px 0; margin:8px 0; font-size:13px; }
+    .rubric .rubric-title { font-weight:700; color:#6639ba; font-size:11px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
+    .keywords { font-size:12.5px; color:var(--text-dim); margin-top:6px; }
+    .keywords code { font-family:'SFMono-Regular','Consolas',monospace; font-size:11.5px; background:#f6f8fa; border:1px solid #d0d7de; border-radius:4px; padding:1px 6px; color:#cf222e; }
+
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    hr { border:none; border-top:1px solid var(--border); margin:36px 0; }
+    @media (max-width:640px){ main{ padding:32px 18px; } }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+<nav>
+  <a href="../index.html" style="font-weight:700;color:#0969da;margin-bottom:8px;border-bottom:1px solid #d0d7de;padding-bottom:10px;">← 핸드북 홈</a>
+  <div class="nav-title">학습 확인 문제 풀이</div>
+
+  <div class="nav-group">객관식</div>
+  <a href="#q-1">Q1. /loop vs /goal</a>
+  <a href="#q-2">Q2. ScheduleWakeup 간격</a>
+  <a href="#q-3">Q3. Self-Refinement 순서</a>
+
+  <div class="nav-group">서술형</div>
+  <a href="#q-4">Q4. 도구 선택 근거</a>
+  <a href="#q-5">Q5. 패턴 비교·적용</a>
+
+  <div class="nav-group">개념 Q&amp;A</div>
+  <a href="#q-6">Q6. /loop vs /schedule</a>
+  <a href="#q-7">Q7. 루프 강제 중단</a>
+  <a href="#q-8">Q8. 300초 함정</a>
+  <a href="#q-9">Q9. 루프 설계 흔한 실수</a>
+  <a href="#q-10">Q10. /goal 종료 조건 설정</a>
+
+  <div class="nav-group">바로가기</div>
+  <a href="../concepts/Concepts_Chapter.html">📖 개념과 원리 →</a>
+  <a href="../tools/Tools_Manual.html">📖 도구 레퍼런스 →</a>
+  <a href="../patterns/Patterns_Manual.html">📖 루프 패턴 →</a>
+</nav>
+
+<main>
+  <h1>Loop Prompt 문제 풀이</h1>
+  <p class="subtitle">
+    루프 도구·패턴·개념을 NFC 학급 관리 시스템 맥락에서 점검합니다
+    &nbsp;|&nbsp;
+    <a href="../index.html">← 핸드북 홈</a>
+  </p>
+
+  <div class="howto">
+    <strong>학습법:</strong> 먼저 스스로 풀어 보고 <strong>'정답·해설 보기'</strong>를 눌러 대조하세요.
+    서술형은 자유 서술이라 자동 채점이 없으며, <strong>모범답안·채점 기준(루브릭)</strong>과 비교해 스스로 점검합니다.
+    입력 내용은 저장·전송되지 않습니다.
+  </div>
+
+  <!-- ══════════════════ 객관식 ══════════════════ -->
+  <div class="level-header" id="mcq">
+    <span class="qbadge qbadge-mcq">객관식</span>
+    <span class="level-title">개념 확인</span>
+    <span class="level-desc">도구·메커니즘·패턴의 핵심 특성을 정확히 이해하고 있는지 확인합니다</span>
+  </div>
+
+  <!-- Q1 -->
+  <div class="q-card scenario-card" id="q-1" data-kind="문제">
+    <div class="q-head">
+      <b class="q-no">Q1</b>
+      <span class="qbadge qbadge-mcq">객관식</span>
+      <span class="lvl lvl-g">초급</span>
+    </div>
+    <div class="q-body">
+      <strong class="q-stem">
+        NFC 리더가 매 30초마다 네트워크 상태를 점검해 오프라인이면 Slack 알림을 보내는 작업을 Claude Code에서 구현하려 한다.
+        다음 중 <em>가장 적절한</em> 도구는?
+      </strong>
+      <ol class="choices">
+        <li><span class="num">①</span><code>/goal "NFC 리더가 오프라인이면 중지"</code> — 목표 달성 시 자동 종료</li>
+        <li><span class="num">②</span><code>/loop 30s</code> — 30초 간격 반복 실행</li>
+        <li><span class="num">③</span><code>/schedule "매 30초"</code> — Anthropic 관리 클라우드 스케줄</li>
+        <li><span class="num">④</span><code>/loop 300s</code> — 5분 간격 반복 실행</li>
+      </ol>
+
+      <details class="reveal hint"><summary>힌트 보기</summary>
+        <div class="reveal-body">
+          "주기적·지속적 감시"가 핵심입니다. 목표를 달성하면 멈추는 게 아니라 <em>계속</em> 확인해야 합니다.
+          <code>/schedule</code>은 Anthropic 클라우드 루틴으로 초 단위 간격은 지원하지 않습니다.
+        </div>
+      </details>
+      <details class="reveal"><summary>정답·해설 보기</summary>
+        <div class="reveal-body">
+          <div class="answer-line">정답: ②</div>
+          <p>
+            <strong>② <code>/loop 30s</code></strong>가 정답입니다.
+            이 시나리오는 "오프라인 감지"라는 <em>반복 폴링 패턴</em>이 필요합니다.
+            <code>/loop [interval]</code>은 지정 간격마다 세션을 재시작해 가장 간단하게 구현됩니다.
+          </p>
+          <ul style="margin:8px 0 0 20px; font-size:13.5px;">
+            <li>① <code>/goal</code>은 "조건 달성 시 종료"이므로 지속 감시가 아닌 <em>한 번의 작업 완료</em>에 적합합니다.</li>
+            <li>③ <code>/schedule</code>은 분·시간·요일 단위 클라우드 루틴이며 30초 간격을 지원하지 않습니다.</li>
+            <li>④ <code>/loop 300s</code>는 5분(300초) 간격인데, NFC 상태 점검 요건(30초)을 충족하지 못합니다.</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-card scenario-card" id="q-2" data-kind="문제">
+    <div class="q-head">
+      <b class="q-no">Q2</b>
+      <span class="qbadge qbadge-mcq">객관식</span>
+      <span class="lvl lvl-b">중급</span>
+    </div>
+    <div class="q-body">
+      <strong class="q-stem">
+        자율 속도 루프(<code>/loop</code> 간격 미지정)에서 Claude Code가 내부적으로 사용하는 <code>ScheduleWakeup</code>의
+        <code>delaySeconds</code>를 설계할 때, 다음 중 <em>피해야 할</em>값은?
+      </strong>
+      <ol class="choices">
+        <li><span class="num">①</span>60초 — 작업이 1분 안에 끝날 때</li>
+        <li><span class="num">②</span>270초 — 프롬프트 캐시를 워밍 상태로 유지하면서 대기할 때</li>
+        <li><span class="num">③</span>300초 — "5분 간격"이라는 라운드 넘버</li>
+        <li><span class="num">④</span>1200초 — 작업이 끝난 뒤 다음 실행까지 충분한 간격이 필요할 때</li>
+      </ol>
+
+      <details class="reveal hint"><summary>힌트 보기</summary>
+        <div class="reveal-body">
+          Anthropic 프롬프트 캐시의 TTL(Time-To-Live)을 기억하세요. 정확히 그 경계에 걸리면 어떤 일이 생길까요?
+        </div>
+      </details>
+      <details class="reveal"><summary>정답·해설 보기</summary>
+        <div class="reveal-body">
+          <div class="answer-line">정답: ③</div>
+          <p>
+            <strong>300초</strong>는 프롬프트 캐시 TTL과 정확히 일치해 <em>worst-case</em>입니다.
+            캐시가 살아있기에는 너무 길고, 캐시 미스를 감수하고 오래 기다리기에는 너무 짧습니다.
+          </p>
+          <ul style="margin:8px 0 0 20px; font-size:13.5px;">
+            <li>① 60초 이하: 캐시 TTL(5분) 이내이므로 워밍 유지 — 정상.</li>
+            <li>② 270초: TTL 경계 직전, 캐시 워밍 유지 — 정상.</li>
+            <li>③ 300초: TTL 경계 <em>정확히</em> 일치 → 캐시 미스 발생, 속도·비용 손실만 얻음 — <strong>피할 것</strong>.</li>
+            <li>④ 1200초+: 의도적 캐시 미스를 감수한 긴 대기 — 정상(장기 주기 작업에 적합).</li>
+          </ul>
+          <div class="keywords">핵심 키워드: <code>캐시 TTL</code> <code>300s 함정</code> <code>ScheduleWakeup</code></div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-card scenario-card" id="q-3" data-kind="문제">
+    <div class="q-head">
+      <b class="q-no">Q3</b>
+      <span class="qbadge qbadge-mcq">객관식</span>
+      <span class="lvl lvl-b">중급</span>
+    </div>
+    <div class="q-body">
+      <strong class="q-stem">
+        SELF-REFINE 패턴의 실행 순서를 올바르게 나열한 것은?
+      </strong>
+      <ol class="choices">
+        <li><span class="num">①</span>비판(Critique) → 초안 생성(Generate) → 개선(Refine) → 종료 판단</li>
+        <li><span class="num">②</span>초안 생성(Generate) → 비판(Critique) → 개선(Refine) → 종료 판단</li>
+        <li><span class="num">③</span>초안 생성(Generate) → 개선(Refine) → 비판(Critique) → 종료 판단</li>
+        <li><span class="num">④</span>비판(Critique) → 개선(Refine) → 초안 생성(Generate) → 종료 판단</li>
+      </ol>
+
+      <details class="reveal hint"><summary>힌트 보기</summary>
+        <div class="reveal-body">
+          이름 그대로입니다. 개선하려면 먼저 <em>무언가가 있어야</em> 하고, 개선하기 전에 <em>무엇이 부족한지 알아야</em> 합니다.
+        </div>
+      </details>
+      <details class="reveal"><summary>정답·해설 보기</summary>
+        <div class="reveal-body">
+          <div class="answer-line">정답: ②</div>
+          <p>
+            SELF-REFINE 논문(Madaan et al. 2023)의 공식 순서는
+            <strong>Generate → Critique → Refine</strong>입니다.
+          </p>
+          <ol style="margin:8px 0 0 20px; font-size:13.5px;">
+            <li><strong>Generate</strong>: 초안 산출 (예: 학급 출결 보고서 초안 작성)</li>
+            <li><strong>Critique</strong>: 같은 모델이 초안의 약점·누락을 비판</li>
+            <li><strong>Refine</strong>: 비판 내용을 반영해 개선된 버전 생성</li>
+            <li><strong>종료 판단</strong>: 품질 기준 충족 여부 확인 → 충족 시 종료, 미충족 시 Critique부터 반복</li>
+          </ol>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- ══════════════════ 서술형 ══════════════════ -->
+  <div class="level-header" id="essay">
+    <span class="qbadge qbadge-essay">서술형</span>
+    <span class="level-title">적용·설명</span>
+    <span class="level-desc">실제 시나리오에서 올바른 도구와 패턴을 선택하고 그 근거를 논술합니다</span>
+  </div>
+
+  <!-- Q4 -->
+  <div class="q-card scenario-card" id="q-4" data-kind="문제">
+    <div class="q-head">
+      <b class="q-no">Q4</b>
+      <span class="qbadge qbadge-essay">서술형</span>
+      <span class="lvl lvl-b">중급</span>
+    </div>
+    <div class="q-body">
+      <strong class="q-stem">
+        NFC 리드 기반 학급 관리 시스템에서 다음 두 가지 업무를 각각 Claude Code로 자동화한다고 가정하자.
+        <br><br>
+        (A) 학생이 교실에 입장하면 NFC 리더가 태깅 데이터를 <code>attendance.json</code>에 기록하는데,
+        Claude Code가 해당 파일을 매 60초마다 읽어 이상 항목(중복 태깅, 미등록 카드)을 검출하고
+        담당 교사에게 알린다.<br>
+        (B) 기말 출결 보고서 초안을 작성하되, 작성 후 자동으로 검토·수정·재검토를 반복해
+        "누락 항목 없음·형식 오류 없음"이 모두 만족될 때 멈춘다.
+        <br><br>
+        각 업무에 가장 적합한 Claude Code 루프 도구를 하나씩 선택하고, 그 이유를 두 가지 이상 제시하라.
+        다른 도구가 부적합한 이유도 함께 설명할 것.
+      </strong>
+
+      <textarea class="answer-field" placeholder="여기에 답을 작성해 보세요"></textarea>
+      <div class="answer-note">※ 입력 내용은 저장·전송·채점되지 않습니다. 스스로 정리한 뒤 아래와 대조하세요.</div>
+
+      <details class="reveal hint"><summary>접근 힌트 보기</summary>
+        <div class="reveal-body">
+          핵심 차이를 떠올리세요: "언제 멈추나?"
+          (A)는 멈추는 조건이 없고, (B)는 명확한 <em>품질 조건</em>이 있습니다.
+          각 도구의 종료 방식과 반복 방식을 비교하면 선택이 자연스럽게 결정됩니다.
+        </div>
+      </details>
+      <details class="reveal"><summary>모범답안·채점 기준 보기</summary>
+        <div class="reveal-body">
+          <p>
+            <strong>(A) 적합 도구: <code>/loop 60s</code></strong><br>
+            이유 ① 이 업무는 "60초마다 파일을 읽고 이상 항목을 알린다"는 무한 반복 폴링이므로, 종료 조건 없이 지정 간격마다 동일 작업을 재실행하는 <code>/loop [interval]</code>이 적합합니다.<br>
+            이유 ② 이상이 없는 경우에도 계속 실행해야 하므로 "조건 달성 시 종료"하는 <code>/goal</code>을 쓰면 이상이 없는 첫 번째 사이클에서 루프가 끊길 위험이 있습니다.<br>
+            이유 ③ <code>/schedule</code>은 Anthropic 관리 클라우드 루틴으로 수십 초 단위 간격은 지원되지 않으며, PC가 꺼져도 실행해야 하는 장기 정기 배치에 적합합니다. 교실 실시간 감시처럼 로컬 파일에 의존하는 작업에는 부적합합니다.
+          </p>
+          <p style="margin-top:12px;">
+            <strong>(B) 적합 도구: <code>/goal "누락 항목 없음 AND 형식 오류 없음"</code></strong><br>
+            이유 ① "조건이 충족되면 멈추는" 목표 지향 루프로, SELF-REFINE(Generate→Critique→Refine)을 자연스럽게 구현합니다.<br>
+            이유 ② <code>/loop</code>는 고정 간격으로만 반복하므로, 품질 기준 달성 여부와 무관하게 계속 실행됩니다. 보고서가 이미 완성되었어도 반복이 멈추지 않아 불필요한 수정이 발생할 수 있습니다.<br>
+            이유 ③ <code>/goal</code>에는 <code>max N turns</code> 설정으로 최대 반복 횟수를 제한할 수 있어, 무한 루프 방지와 품질 보장을 동시에 달성합니다.
+          </p>
+          <div class="rubric">
+            <div class="rubric-title">채점 기준(루브릭)</div>
+            <ul style="margin:0 0 0 18px;">
+              <li>(A)에서 <code>/loop [interval]</code>을 선택하고, "종료 조건 없는 반복"을 언급했는가</li>
+              <li>(B)에서 <code>/goal</code>을 선택하고, "품질 조건 달성 시 종료"를 언급했는가</li>
+              <li>각각 다른 도구가 왜 부적합한지 구체적으로 설명했는가</li>
+              <li>두 도구의 핵심 차이(종료 방식)를 비교했는가</li>
+            </ul>
+          </div>
+          <div class="keywords">핵심 키워드: <code>/loop</code> <code>/goal</code> <code>폴링 패턴</code> <code>자기 수정 루프</code> <code>종료 조건</code></div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="q-card scenario-card" id="q-5" data-kind="문제">
+    <div class="q-head">
+      <b class="q-no">Q5</b>
+      <span class="qbadge qbadge-essay">서술형</span>
+      <span class="lvl lvl-p">고급</span>
+    </div>
+    <div class="q-body">
+      <strong class="q-stem">
+        일반 LLM 루프 기법인 SELF-REFINE과 Reflexion은 모두 "자기 수정"을 추구하지만 동작 방식이 다르다.
+        두 기법의 핵심 차이를 비교 설명하고,
+        NFC 학급 관리 시스템에서 각 기법이 적합한 시나리오를 하나씩 제시하라.
+        또한 두 기법을 결합하면 어떤 이점이 있는지 서술하라.
+      </strong>
+
+      <textarea class="answer-field" placeholder="여기에 답을 작성해 보세요" style="min-height:100px;"></textarea>
+      <div class="answer-note">※ 입력 내용은 저장·전송·채점되지 않습니다.</div>
+
+      <details class="reveal hint"><summary>접근 힌트 보기</summary>
+        <div class="reveal-body">
+          Reflexion의 핵심은 <em>실패 기억</em>입니다. SELF-REFINE이 단일 결과물을 개선하는 반면,
+          Reflexion은 <em>여러 시도에 걸쳐</em> 무엇이 왜 실패했는지 누적합니다.
+          NFC 시스템에서 "한 번의 문서 품질 향상"과 "반복 실수 방지"가 어떤 업무에 맞는지 생각해 보세요.
+        </div>
+      </details>
+      <details class="reveal"><summary>모범답안·채점 기준 보기</summary>
+        <div class="reveal-body">
+          <p><strong>핵심 차이</strong></p>
+          <ul style="margin:0 0 10px 20px;">
+            <li><strong>SELF-REFINE</strong>은 단일 작업 내에서 Generate → Critique → Refine을 반복합니다. 비판 내용이 같은 세션의 컨텍스트로만 존재하며, 다음 독립 실행 시 초기화됩니다.</li>
+            <li><strong>Reflexion</strong>은 여러 시도에 걸쳐 실패 기억(verbal memory)을 외부 메모리(파일·메모)에 누적합니다. 다음 실행 시 이전 실패 원인을 프롬프트에 주입해 같은 실수를 반복하지 않습니다.</li>
+          </ul>
+          <p><strong>NFC 시나리오별 적합 기법</strong></p>
+          <ul style="margin:0 0 10px 20px;">
+            <li><strong>SELF-REFINE 적합</strong>: 월간 출결 요약 보고서 단건 작성. 초안을 Critique(누락 학생 없는가? 날짜 오류 없는가?)해 즉시 Refine — 한 번 완성하면 충분한 작업에 적합합니다.</li>
+            <li><strong>Reflexion 적합</strong>: 이상 태깅 탐지 쿼리 개선. 매주 새 데이터에 쿼리를 실행할 때마다 탐지 실패 사례를 기록하고 다음 주 쿼리에 반영 — 반복 실수를 누적 학습으로 방지합니다.</li>
+          </ul>
+          <p><strong>결합 이점</strong></p>
+          <p>
+            SELF-REFINE으로 즉각적 품질을 높이고(세션 내 Critique·Refine),
+            Reflexion으로 장기 개선을 누적합니다(세션 간 실패 기억).
+            예: 매주 보고서를 SELF-REFINE으로 작성하되, 반복되는 오류 유형(예: 특정 반 데이터 누락)은 Reflexion 메모에 기록해 다음 주 초안 생성 시 프롬프트에 주입하면 같은 실수가 줄어듭니다.
+          </p>
+          <div class="rubric">
+            <div class="rubric-title">채점 기준(루브릭)</div>
+            <ul style="margin:0 0 0 18px;">
+              <li>SELF-REFINE과 Reflexion의 동작 차이를 "세션 내 vs 세션 간"으로 명확히 구분했는가</li>
+              <li>Reflexion의 핵심인 "외부 메모리 누적"을 언급했는가</li>
+              <li>NFC 도메인 시나리오가 각 기법의 특성과 논리적으로 연결되는가</li>
+              <li>결합 이점을 구체적으로 서술했는가(단순 나열이 아닌 시너지 효과)</li>
+            </ul>
+          </div>
+          <div class="keywords">핵심 키워드: <code>SELF-REFINE</code> <code>Reflexion</code> <code>verbal memory</code> <code>세션 간 누적</code></div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- ══════════════════ 개념 Q&A / FAQ ══════════════════ -->
+  <div class="level-header" id="qa">
+    <span class="qbadge qbadge-qa">개념 Q&amp;A</span>
+    <span class="level-title">자주 묻는 질문</span>
+    <span class="level-desc">오해하기 쉬운 동작과 실전 설계 팁을 짚어봅니다</span>
+  </div>
+
+  <!-- Q6 -->
+  <div class="q-card scenario-card" id="q-6" data-kind="Q&amp;A">
+    <div class="q-head">
+      <b class="q-no">Q6</b>
+      <span class="qbadge qbadge-qa">Q&amp;A</span>
+    </div>
+    <div class="q-body">
+      <strong class="q-stem"><code>/loop</code>와 <code>/schedule</code>은 둘 다 반복 실행인데, 어떻게 다른가요?</strong>
+      <details class="reveal"><summary>답 보기</summary>
+        <div class="reveal-body">
+          <p>두 도구는 <em>실행 위치</em>와 <em>지속성</em>이 다릅니다.</p>
+          <ul style="margin:6px 0 0 20px; font-size:13.5px;">
+            <li><strong><code>/loop</code></strong>: 로컬 PC에서 현재 세션 안에 반복합니다. PC를 끄거나 터미널을 닫으면 중단됩니다. 초·분 단위 짧은 간격이 가능합니다.</li>
+            <li><strong><code>/schedule</code></strong>: Anthropic 클라우드가 관리하는 루틴으로, PC가 꺼져도 지정 시각에 실행됩니다. 매일·매주 같은 장기 주기에 적합하며, 로컬 파일에 직접 접근하는 작업에는 제한이 있습니다.</li>
+          </ul>
+          <p style="margin-top:8px;">
+            <strong>선택 기준:</strong> 로컬 파일·실시간 감시 → <code>/loop</code>,
+            클라우드 리소스 대상 정기 배치(보고서 생성, API 호출 등) → <code>/schedule</code>.
+          </p>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="q-card scenario-card" id="q-7" data-kind="Q&amp;A">
+    <div class="q-head">
+      <b class="q-no">Q7</b>
+      <span class="qbadge qbadge-qa">Q&amp;A</span>
+    </div>
+    <div class="q-body">
+      <strong class="q-stem">실수로 무한 루프(<code>/loop</code>)를 걸어 버렸습니다. 어떻게 중단하나요?</strong>
+      <details class="reveal"><summary>답 보기</summary>
+        <div class="reveal-body">
+          <p>세 가지 방법이 있습니다:</p>
+          <ol style="margin:6px 0 0 20px; font-size:13.5px;">
+            <li><strong>루프 프롬프트에서 "stop" 입력:</strong> 루프가 대기 중일 때(다음 세션 시작 전) <code>stop</code> 또는 <code>clear</code>를 입력하면 중단됩니다.</li>
+            <li><strong><code>/goal stop</code> 또는 <code>/goal off</code>:</strong> <code>/goal</code>로 실행 중인 루프라면 이 명령으로 취소합니다.</li>
+            <li><strong>터미널 강제 종료:</strong> <kbd>Ctrl+C</kbd>로 현재 세션을 종료하면 루프가 즉시 멈춥니다. <code>/loop</code>는 로컬 프로세스이므로 프로세스 종료로 언제든 중단 가능합니다.</li>
+          </ol>
+          <p style="margin-top:8px; font-size:13px; color:var(--text-dim);">
+            <code>/schedule</code>로 등록한 클라우드 루틴은 <code>/schedule cancel [ID]</code> 또는 Claude.ai 설정 화면에서 삭제합니다.
+          </p>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="q-card scenario-card" id="q-8" data-kind="Q&amp;A">
+    <div class="q-head">
+      <b class="q-no">Q8</b>
+      <span class="qbadge qbadge-qa">Q&amp;A</span>
+    </div>
+    <div class="q-body">
+      <strong class="q-stem"><code>ScheduleWakeup</code>에서 정확히 300초를 쓰면 안 된다고 하는데, 왜 300초가 문제인가요?</strong>
+      <details class="reveal"><summary>답 보기</summary>
+        <div class="reveal-body">
+          <p>
+            Anthropic 프롬프트 캐시의 TTL(Time-To-Live)이 5분(300초)입니다.
+            <code>delaySeconds=300</code>을 지정하면 캐시가 딱 만료되는 시점에 깨어나
+            <em>캐시 미스가 거의 확실히</em> 발생합니다.
+          </p>
+          <ul style="margin:8px 0 0 20px; font-size:13.5px;">
+            <li>캐시 워밍 상태 유지를 원한다면 <strong>≤270초</strong>를 사용하세요.</li>
+            <li>긴 대기로 캐시 미스를 의도적으로 감수하는 경우라면 <strong>≥1200초</strong>로 넉넉히 주면 비용 대비 효율이 좋아집니다.</li>
+            <li>300초는 "캐시도 못 유지하고, 긴 대기의 이점도 없는" 최악의 선택입니다.</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="q-card scenario-card" id="q-9" data-kind="Q&amp;A">
+    <div class="q-head">
+      <b class="q-no">Q9</b>
+      <span class="qbadge qbadge-qa">Q&amp;A</span>
+    </div>
+    <div class="q-body">
+      <strong class="q-stem">NFC 출결 시스템에서 루프 패턴을 처음 설계할 때 흔히 저지르는 실수는 무엇인가요?</strong>
+      <details class="reveal"><summary>답 보기</summary>
+        <div class="reveal-body">
+          <p>실제로 자주 보이는 실수 세 가지:</p>
+          <ol style="margin:6px 0 0 20px; font-size:13.5px;">
+            <li>
+              <strong>폴링과 목표 루프 혼용:</strong>
+              "이상 없으면 멈춰라"는 뜻으로 <code>/goal</code>을 폴링에 쓰면,
+              첫 번째 이상 없는 사이클에서 루프가 끊깁니다.
+              지속 감시에는 반드시 <code>/loop [interval]</code>을 사용하세요.
+            </li>
+            <li>
+              <strong>루프 내 부수 효과 누적:</strong>
+              루프마다 파일에 로그를 <em>덮어쓰지 않고 추가</em>(append)만 하면 파일이 무한정 커집니다.
+              <code>.claude/loop.md</code>에 "로그는 최근 N개만 유지"를 명시하거나,
+              외부 로그 관리 도구를 함께 쓰세요.
+            </li>
+            <li>
+              <strong>종료 조건 없는 <code>/goal</code> 루프:</strong>
+              품질 기준이 너무 엄격하면 루프가 최대 반복 횟수까지 계속 돌아 불필요한 API 비용이 발생합니다.
+              항상 <code>max N turns</code>를 설정해 상한을 지정하세요.
+            </li>
+          </ol>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="q-card scenario-card" id="q-10" data-kind="Q&amp;A">
+    <div class="q-head">
+      <b class="q-no">Q10</b>
+      <span class="qbadge qbadge-qa">Q&amp;A</span>
+    </div>
+    <div class="q-body">
+      <strong class="q-stem">Claude Code에서 <code>/goal</code>을 사용할 때 종료 조건을 어떻게 작성해야 효과적인가요?</strong>
+      <details class="reveal"><summary>답 보기</summary>
+        <div class="reveal-body">
+          <p>효과적인 종료 조건의 세 가지 원칙:</p>
+          <ol style="margin:6px 0 0 20px; font-size:13.5px;">
+            <li>
+              <strong>검증 가능하게:</strong>
+              "보고서가 완성되면"처럼 모호한 조건 대신,
+              <code>"check_report.py 가 exit 0으로 종료되면"</code>처럼
+              스크립트나 커맨드 결과로 판단할 수 있게 작성하세요.
+            </li>
+            <li>
+              <strong>AND 조건으로 복합 품질 보장:</strong>
+              <code>"누락 항목 없음 AND 형식 오류 없음 AND 총 행 수 ≥ 30"</code>처럼
+              여러 품질 기준을 AND로 연결하면 한 조건만 통과해 조기 종료되는 것을 방지합니다.
+            </li>
+            <li>
+              <strong>반드시 최대 반복 수 지정:</strong>
+              <code>/goal "..." max 8 turns</code>처럼 상한을 두어
+              무한 루프와 과도한 비용 발생을 방지하세요.
+              NFC 출결 보고서처럼 반복 비용이 큰 작업일수록 중요합니다.
+            </li>
+          </ol>
+          <p style="margin-top:8px;">
+            자세한 내용은 <a href="../tools/Tools_Manual.html#goal">Tools 매뉴얼 → /goal</a>을 참조하세요.
+          </p>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <hr>
+  <p style="color:var(--text-dim); font-size:12px; text-align:center;">
+    Claude Code 2026.07 기준 · 2026년 7월 4일<br>
+    <a href="../index.html">← 핸드북 홈으로 돌아가기</a>
+  </p>
+</main>
+
+</div>
+  <script src="../assets/inpage-search.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loop Prompt 핸드북 — Claude Code 루프 프롬프팅 완전 가이드</title>
+  <style>
+    :root {
+      --bg: #ffffff; --bg2: #f6f8fa; --bg3: #eef1f4; --border: #d0d7de;
+      --text: #1f2328; --text-dim: #636c76;
+      --accent: #0969da; --accent2: #1a7f37; --accent4: #6639ba; --accent6: #0550ae;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 15px; -webkit-font-smoothing: antialiased; }
+    .wrap { max-width: 880px; margin: 0 auto; padding: 64px 24px 80px; }
+    header { margin-bottom: 8px; }
+    h1 { font-size: 2.1rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 10px; }
+    .subtitle { color: var(--text-dim); font-size: 15px; margin-bottom: 8px; }
+    .subtitle a { color: var(--accent); text-decoration: none; }
+    .subtitle a:hover { text-decoration: underline; }
+    .meta { background: #f0f7ff; border: 1px solid #a5d5f7; border-left: 4px solid var(--accent); border-radius: 6px; padding: 12px 18px; margin: 28px 0 40px; font-size: 13px; color: var(--text-dim); }
+    .meta strong { color: var(--accent6); }
+    .section-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-dim); margin: 0 0 14px; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .card { display: block; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 22px 24px; text-decoration: none; color: var(--text); transition: border-color .15s, box-shadow .15s, transform .15s; }
+    .card:hover { border-color: var(--accent); box-shadow: 0 4px 14px rgba(9,105,218,.10); transform: translateY(-2px); }
+    .card .tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 20px; letter-spacing: .04em; margin-bottom: 12px; }
+    .tag-ref { background: #ddf4ff; color: var(--accent6); border: 1px solid #a5d5f7; }
+    .tag-ex  { background: #dafbe1; color: var(--accent2); border: 1px solid #a2d9b1; }
+    .tag-ch  { background: #f6f8fa; color: var(--text-dim); border: 1px solid var(--border); }
+    .tag-quiz { background: #fbefff; color: var(--accent4); border: 1px solid #d2b9ff; }
+    .card h2 { font-size: 1.06rem; font-weight: 700; margin-bottom: 6px; }
+    .card p { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+    .card .go { margin-top: 14px; font-size: 13px; font-weight: 600; color: var(--accent); }
+    .group { margin-bottom: 40px; }
+    footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 12px; line-height: 1.9; }
+    footer a { color: var(--accent); text-decoration: none; }
+    @media (max-width: 640px) { .wrap { padding: 40px 18px 60px; } h1 { font-size: 1.7rem; } .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Loop Prompt 핸드북</h1>
+      <p class="subtitle">Claude Code 루프 프롬프팅의 개념·도구·설계 패턴을 NFC 학급 관리 시스템 예시와 함께 한국어로 정리한 실용 가이드 &nbsp;|&nbsp; <a href="https://code.claude.com/docs/en/commands" target="_blank">공식 문서</a></p>
+    </header>
+
+    <div class="meta">
+      대상 <strong>Claude Code 2026.07</strong> &nbsp;|&nbsp; 공식 문서:
+      <a href="https://code.claude.com/docs/en/commands" target="_blank">code.claude.com/docs/en/commands</a>,
+      <a href="https://claude.com/blog/getting-started-with-loops" target="_blank">Getting Started with Loops</a>
+      &nbsp;|&nbsp; 예시 도메인: <strong>NFC 리드 기반 학급 관리 시스템</strong>
+      <br>최종 업데이트 <strong>2026년 7월 4일</strong>
+    </div>
+
+    <!-- 섹션 1: 개념 -->
+    <div class="group">
+      <p class="section-label">① 개념과 원리</p>
+      <div class="grid">
+        <a class="card" href="concepts/Concepts_Chapter.html">
+          <span class="tag tag-ch">챕터</span>
+          <h2>루프 프롬프팅 개념과 원리</h2>
+          <p>루프의 4가지 유형, Self-Refinement · Reflexion 원리, NFC 학급 관리에서의 활용 방향</p>
+          <div class="go">챕터 읽기 →</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- 섹션 2: 도구 레퍼런스 -->
+    <div class="group">
+      <p class="section-label">② Claude Code 루프 도구</p>
+      <div class="grid">
+        <a class="card" href="tools/Tools_Manual.html">
+          <span class="tag tag-ref">레퍼런스</span>
+          <h2>루프 도구 매뉴얼</h2>
+          <p><code>/loop</code> · <code>/goal</code> · <code>/schedule</code> 명령의 문법·옵션·내부 동작을 빠르게 참조</p>
+          <div class="go">매뉴얼 열기 →</div>
+        </a>
+        <a class="card" href="tools/Tools_Examples.html">
+          <span class="tag tag-ex">실습 예시</span>
+          <h2>루프 도구 실습 예시</h2>
+          <p>NFC 리더 폴링부터 출석 데이터 자동 검증까지, 초·중·고급 시나리오로 실전 활용법 학습</p>
+          <div class="go">예시 열기 →</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- 섹션 3: 설계 패턴 -->
+    <div class="group">
+      <p class="section-label">③ 루프 설계 패턴</p>
+      <div class="grid">
+        <a class="card" href="patterns/Patterns_Manual.html">
+          <span class="tag tag-ref">레퍼런스</span>
+          <h2>루프 설계 패턴 레퍼런스</h2>
+          <p>폴링 · 자기 수정 · 목표 지향 · 멀티 에이전트 루프 패턴의 구조와 적용 조건</p>
+          <div class="go">패턴 열기 →</div>
+        </a>
+        <a class="card" href="patterns/Patterns_Examples.html">
+          <span class="tag tag-ex">실습 예시</span>
+          <h2>패턴 실습 예시</h2>
+          <p>NFC 이벤트 파이프라인을 통해 패턴을 조합하고 운영하는 고급 시나리오</p>
+          <div class="go">예시 열기 →</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- 섹션 4: 퀴즈 -->
+    <div class="group">
+      <p class="section-label">④ 학습 확인</p>
+      <div class="grid">
+        <a class="card" href="quiz/Quiz_Quiz.html">
+          <span class="tag tag-quiz">문제 풀이</span>
+          <h2>루프 프롬프팅 Q&amp;A</h2>
+          <p>객관식 · 서술형 · 개념 FAQ로 이해도를 점검하고 핵심 개념을 복습</p>
+          <div class="go">문제 풀기 →</div>
+        </a>
+      </div>
+    </div>
+
+    <footer>
+      Claude Code 2026.07 기준 · 한국어 교육 자료<br>
+      공식 문서: <a href="https://code.claude.com/docs/en/commands" target="_blank">code.claude.com/docs/en/commands</a> &nbsp;|&nbsp; <a href="https://claude.com/blog/getting-started-with-loops" target="_blank">Getting Started with Loops</a>
+    </footer>
+  </div>
+  <script src="assets/site-search.js" defer></script>
+</body>
+</html>

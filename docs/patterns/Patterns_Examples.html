@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>루프 설계 패턴 실습 예시 — Loop Prompt 핸드북</title>
+  <style>
+    :root {
+      --bg: #ffffff; --bg2: #f6f8fa; --bg3: #eef1f4; --border: #d0d7de;
+      --text: #1f2328; --text-dim: #636c76;
+      --accent: #0969da; --accent-g: #1a7f37; --accent-o: #953800; --accent-p: #6639ba;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; }
+    .layout { display: flex; min-height: 100vh; }
+    nav { width: 270px; min-width: 270px; background: var(--bg2); border-right: 1px solid var(--border); position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 20px 0; }
+    nav .nav-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-dim); padding: 0 16px 10px; }
+    nav a { display: flex; align-items: center; gap: 8px; padding: 6px 16px; color: var(--text-dim); text-decoration: none; font-size: 13px; border-left: 2px solid transparent; transition: all .15s; }
+    nav a:hover { color: var(--accent); background: var(--bg3); border-left-color: var(--accent); }
+    nav .nav-group { margin-top: 10px; padding: 7px 16px 4px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--text-dim); border-top: 1px solid var(--border); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-g { background: #1a7f37; } .dot-b { background: #0969da; } .dot-p { background: #6639ba; }
+    main { flex: 1; max-width: 880px; padding: 40px 52px; }
+    h1 { font-size: 1.9rem; font-weight: 700; color: #1f2328; margin-bottom: 6px; }
+    .subtitle { color: var(--text-dim); font-size: 13px; margin-bottom: 24px; }
+    .subtitle a { color: var(--accent); text-decoration: none; }
+    .version-box { background: #f0f7ff; border: 1px solid #a5d5f7; border-left: 4px solid #0969da; border-radius: 6px; padding: 14px 18px; margin-bottom: 36px; font-size: 13px; }
+    .version-row { display: flex; gap: 12px; padding: 3px 0; border-bottom: 1px solid #d0e8ff; }
+    .version-row:last-child { border-bottom: none; }
+    .vlabel { min-width: 160px; font-weight: 600; color: #0550ae; flex-shrink: 0; }
+    .level-header { display: flex; align-items: center; gap: 12px; margin: 48px 0 20px; padding-bottom: 10px; border-bottom: 2px solid var(--border); }
+    .level-title { font-size: 1.3rem; font-weight: 700; }
+    .level-title-g { color: #1a7f37; } .level-title-b { color: #0969da; } .level-title-p { color: #6639ba; }
+    .level-desc { font-size: 13px; color: var(--text-dim); }
+    .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 700; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: .05em; }
+    .badge-g { background: #dafbe1; color: #116329; border: 1px solid #a2d9b1; }
+    .badge-b { background: #ddf4ff; color: #0550ae; border: 1px solid #a5d5f7; }
+    .badge-p { background: #fbefff; color: #6639ba; border: 1px solid #d2b9ff; }
+    .scenario-card { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 36px; overflow: hidden; }
+    .card-header { display: flex; align-items: center; gap: 12px; padding: 16px 22px; background: var(--bg2); border-bottom: 1px solid var(--border); }
+    .card-id { font-family: 'SFMono-Regular', 'Consolas', monospace; font-size: 11px; font-weight: 700; color: var(--text-dim); min-width: 34px; }
+    .card-title { font-size: 1.05rem; font-weight: 700; color: #1f2328; }
+    .card-body { padding: 22px 26px; }
+    .situation { background: #fffbf0; border-left: 3px solid #d4a72c; border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 20px; font-size: 14px; line-height: 1.7; }
+    .situation::before { content: '📌 상황'; display: block; font-weight: 700; color: #7d4e00; margin-bottom: 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+    .cmd-list { margin-bottom: 20px; }
+    .cmd-list-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text-dim); margin-bottom: 8px; }
+    .cmd-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .cmd-chip { font-family: 'SFMono-Regular', 'Consolas', monospace; font-size: 12px; font-weight: 600; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; padding: 4px 10px; color: #cf222e; text-decoration: none; transition: background .15s; }
+    .cmd-chip:hover { background: #ddf4ff; border-color: #a5d5f7; color: #0550ae; }
+    .steps-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text-dim); margin-bottom: 12px; }
+    .step-list { list-style: none; counter-reset: step-counter; margin-bottom: 20px; }
+    .step-list li { counter-increment: step-counter; display: flex; gap: 14px; margin-bottom: 18px; align-items: flex-start; }
+    .step-list li::before { content: counter(step-counter); min-width: 26px; height: 26px; background: #0969da; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .step-content { flex: 1; }
+    .step-content strong { display: block; margin-bottom: 6px; color: #1f2328; font-size: 14px; }
+    .step-content p { font-size: 13.5px; color: var(--text-dim); margin-bottom: 8px; }
+    pre.code-block { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; padding: 12px 16px; overflow-x: auto; font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace; font-size: 13px; line-height: 1.55; color: #116329; margin: 6px 0 0; position: relative; }
+    .copy-btn { position: absolute; top: 8px; right: 10px; background: #fff; border: 1px solid #d0d7de; border-radius: 5px; padding: 3px 9px; font-size: 11px; cursor: pointer; color: #636c76; }
+    .copy-btn:hover { background: #f6f8fa; color: #0969da; }
+    .copy-btn.copied { color: #1a7f37; border-color: #a2d9b1; }
+    .flow-box { background: #f0f7ff; border: 1px solid #a5d5f7; border-radius: 6px; padding: 14px 18px; margin-bottom: 16px; font-size: 13.5px; }
+    .flow-box::before { content: '⚙️ 내부 동작'; display: block; font-weight: 700; color: #0550ae; margin-bottom: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+    .tip-box { background: #dafbe1; border: 1px solid #a2d9b1; border-radius: 6px; padding: 12px 16px; margin-bottom: 14px; font-size: 13.5px; color: #0a3622; }
+    .tip-box::before { content: '💡 팁'; display: block; font-weight: 700; color: #116329; margin-bottom: 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+    .warning-box { background: #fff8c5; border: 1px solid #d4a72c; border-radius: 6px; padding: 12px 16px; margin-bottom: 14px; font-size: 13.5px; color: #5c3900; }
+    .warning-box::before { content: '⚠️ 주의'; display: block; font-weight: 700; color: #7d4e00; margin-bottom: 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+    .related-cmds { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 4px; font-size: 13px; color: var(--text-dim); }
+    .related-cmds strong { color: #1f2328; }
+    code { font-family: 'SFMono-Regular', 'Consolas', monospace; font-size: 12px; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 4px; padding: 2px 6px; color: #cf222e; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+  </style>
+</head>
+<body>
+<div class="layout">
+<nav>
+  <a href="../index.html" style="font-weight:700;color:#0969da;margin-bottom:8px;border-bottom:1px solid #d0d7de;padding-bottom:10px;">← 핸드북 홈</a>
+  <div class="nav-title">패턴 실습 예시</div>
+  <a href="#beginner"><span class="dot dot-g"></span>초급</a>
+  <div class="nav-group">초급 시나리오</div>
+  <a href="#scenario-1"><span class="dot dot-g"></span>G-1 폴링 + 알림</a>
+  <div class="nav-group">중급 시나리오</div>
+  <a href="#scenario-2"><span class="dot dot-b"></span>D-1 자기 수정 루프</a>
+  <div class="nav-group">고급 시나리오</div>
+  <a href="#scenario-3"><span class="dot dot-p"></span>P-1 멀티 에이전트 파이프라인</a>
+  <div class="nav-group">바로가기</div>
+  <a href="Patterns_Manual.html">📖 패턴 레퍼런스 →</a>
+</nav>
+<main>
+  <h1>루프 설계 패턴 실습 예시</h1>
+  <p class="subtitle">NFC 학급 관리 시스템으로 폴링·자기 수정·멀티 에이전트 패턴을 실제로 조합하는 방법 &nbsp;|&nbsp; <a href="Patterns_Manual.html">← 패턴 레퍼런스로 돌아가기</a></p>
+
+  <div class="version-box">
+    <div class="version-row"><span class="vlabel">대상 버전</span><span>Claude Code 2026.07</span></div>
+    <div class="version-row"><span class="vlabel">이 파일의 목적</span><span>루프 패턴을 NFC 시스템 맥락에서 단계별로 실습</span></div>
+    <div class="version-row"><span class="vlabel">레퍼런스 문서</span><span><a href="Patterns_Manual.html">Patterns_Manual.html</a></span></div>
+    <div class="version-row"><span class="vlabel">작성일</span><span>2026년 7월 4일</span></div>
+  </div>
+
+  <!-- 초급 -->
+  <div class="level-header" id="beginner">
+    <span class="badge badge-g">● 초급</span>
+    <span class="level-title level-title-g">Getting Started</span>
+    <span class="level-desc">폴링 패턴으로 NFC 리더 이상을 감지하고 알림 보내기</span>
+  </div>
+
+  <div class="scenario-card" id="scenario-1">
+    <div class="card-header">
+      <span class="card-id">G-1</span>
+      <span class="badge badge-g">초급</span>
+      <strong class="card-title">NFC 리더 이상 감지 → 즉시 알림 폴링 루프</strong>
+    </div>
+    <div class="card-body">
+      <div class="situation">
+        교사 A의 교실 NFC 리더가 수업 중 가끔 오프라인이 된다. 오프라인 상태를 1분 안에 감지해 교무실에 Slack 알림을 보내고 싶다. 폴링 패턴을 사용해 리더 상태를 주기적으로 확인하고, 이상 시 즉각 반응하는 루프를 만든다. 전제 조건: <code>classroom-nfc/</code> 프로젝트 폴더, <code>localhost:3000</code>에서 NFC 서버 실행 중, Slack Webhook URL 환경 변수 설정 완료.
+      </div>
+      <div class="cmd-list">
+        <div class="cmd-list-title">사용 요소</div>
+        <div class="cmd-chips">
+          <a class="cmd-chip" href="Patterns_Manual.html#polling">폴링 패턴</a>
+          <a class="cmd-chip" href="../tools/Tools_Manual.html#loop">/loop</a>
+        </div>
+      </div>
+      <div class="steps-title">단계별 실행</div>
+      <ol class="step-list">
+        <li>
+          <div class="step-content">
+            <strong>.claude/loop.md에 폴링 지침 작성</strong>
+            <p>반복 실행할 점검 내용을 파일로 관리하면 재사용과 팀 공유가 쉬워진다.</p>
+            <div style="position:relative">
+              <pre class="code-block"># .claude/loop.md
+GET http://localhost:3000/api/reader/status 를 호출한다.
+응답의 "status" 필드가 "connected"이면 "✓ NFC 정상"을 출력한다.
+"connected"가 아니면 $SLACK_WEBHOOK_URL 로 아래 메시지를 POST한다:
+{"text": "⚠️ NFC 리더 오프라인 감지 — 즉시 확인 필요"}</pre>
+              <button class="copy-btn" onclick="copyCode(this)">복사</button>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="step-content">
+            <strong>45초 간격으로 루프 시작</strong>
+            <p>45초마다 .claude/loop.md 지침을 실행한다. 270초(캐시 유지 상한) 안에서 가장 촘촘한 간격이다.</p>
+            <div style="position:relative">
+              <pre class="code-block">/loop 45s</pre>
+              <button class="copy-btn" onclick="copyCode(this)">복사</button>
+            </div>
+          </div>
+        </li>
+      </ol>
+      <div class="flow-box">
+        /loop 45s를 실행하면 Claude는 즉시 .claude/loop.md를 읽고 점검을 수행한다. 이후 45초마다 같은 지침을 반복하며, 이상이 감지될 때마다 Slack 알림을 보낸다. 캐시 TTL(300초) 안에서 실행되므로 프롬프트 캐시가 유지되어 비용 효율적이다.
+      </div>
+      <div class="tip-box">
+        .claude/loop.md를 사용하면 루프 프롬프트를 코드처럼 버전 관리할 수 있다. 팀원이 지침을 수정하면 다음 루프 실행부터 바로 반영된다.
+      </div>
+    </div>
+  </div>
+
+  <!-- 중급 -->
+  <div class="level-header" id="intermediate">
+    <span class="badge badge-b">● 중급</span>
+    <span class="level-title level-title-b">Daily Workflow</span>
+    <span class="level-desc">자기 수정 패턴으로 출석 데이터 품질을 자동으로 높이기</span>
+  </div>
+
+  <div class="scenario-card" id="scenario-2">
+    <div class="card-header">
+      <span class="card-id">D-1</span>
+      <span class="badge badge-b">중급</span>
+      <strong class="card-title">출석 보고서 품질 자동 개선 — 자기 수정 패턴</strong>
+    </div>
+    <div class="card-body">
+      <div class="situation">
+        교사 B는 NFC 출석 데이터로 생성한 주간 보고서가 형식·내용 기준을 일정하게 충족하지 못한다는 것을 알았다. 생성 → 검증 → 수정을 에이전트가 스스로 반복해 기준을 충족하는 보고서를 만들고 싶다. 전제 조건: <code>generate_report.py</code>(보고서 생성 스크립트)와 <code>check_report.py</code>(품질 기준 검사 스크립트)가 준비되어 있어야 한다.
+      </div>
+      <div class="cmd-list">
+        <div class="cmd-list-title">사용 요소</div>
+        <div class="cmd-chips">
+          <a class="cmd-chip" href="Patterns_Manual.html#correction">자기 수정 패턴</a>
+          <a class="cmd-chip" href="../tools/Tools_Manual.html#goal">/goal</a>
+        </div>
+      </div>
+      <div class="steps-title">단계별 실행</div>
+      <ol class="step-list">
+        <li>
+          <div class="step-content">
+            <strong>초기 보고서 생성</strong>
+            <p>먼저 원본 보고서를 만든다.</p>
+            <div style="position:relative">
+              <pre class="code-block">python generate_report.py --week 2026-W27 --output report.md</pre>
+              <button class="copy-btn" onclick="copyCode(this)">복사</button>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="step-content">
+            <strong>자기 수정 루프 시작</strong>
+            <p>check_report.py 검사를 통과할 때까지 보고서를 자동으로 개선하도록 /goal을 사용한다.</p>
+            <div style="position:relative">
+              <pre class="code-block">/goal python check_report.py report.md 를 실행했을 때 모든 항목이 "PASS"가 되도록 report.md를 수정해줘. 항목별 실패 이유를 분석해 최소한의 수정만 적용하고, 최대 6번 시도 후 남은 실패 항목 목록을 보고해줘</pre>
+              <button class="copy-btn" onclick="copyCode(this)">복사</button>
+            </div>
+          </div>
+        </li>
+      </ol>
+      <div class="flow-box">
+        매 턴마다 Claude는 check_report.py 출력을 분석해 어떤 항목이 왜 실패했는지 파악하고, report.md의 해당 부분만 수정한다. 과교정을 피하기 위해 "최소한의 수정"을 명시했다. 모든 항목이 PASS가 되거나 6번 시도를 소진하면 멈춘다.
+      </div>
+      <div class="warning-box">
+        자기 수정 루프는 report.md를 반복 덮어쓴다. 실행 전에 <code>git add report.md &amp;&amp; git stash</code>로 원본을 보존해 두는 것이 좋다.
+      </div>
+    </div>
+  </div>
+
+  <!-- 고급 -->
+  <div class="level-header" id="advanced">
+    <span class="badge badge-p">● 고급</span>
+    <span class="level-title level-title-p">Power User</span>
+    <span class="level-desc">멀티 에이전트로 전 학교 NFC 데이터를 병렬 처리</span>
+  </div>
+
+  <div class="scenario-card" id="scenario-3">
+    <div class="card-header">
+      <span class="card-id">P-1</span>
+      <span class="badge badge-p">고급</span>
+      <strong class="card-title">전교 출석 데이터 병렬 검증 파이프라인</strong>
+    </div>
+    <div class="card-body">
+      <div class="situation">
+        행정실 D는 1학년부터 3학년까지 9개 학급의 NFC 출석 데이터를 매일 오후 검증해야 한다. 순차 처리는 너무 오래 걸리므로, 멀티 에이전트 루프로 각 학급 데이터를 병렬로 검증하고 결과를 합산해 교장에게 요약 보고서를 생성하고 싶다. 전제 조건: <code>attendance/</code> 폴더 안에 학급별 서브폴더(예: <code>grade1-class1/</code>)가 있고 각각 <code>attendance.json</code>이 존재해야 한다.
+      </div>
+      <div class="cmd-list">
+        <div class="cmd-list-title">사용 요소</div>
+        <div class="cmd-chips">
+          <a class="cmd-chip" href="Patterns_Manual.html#multi-agent">멀티 에이전트 루프</a>
+          <a class="cmd-chip" href="../tools/Tools_Manual.html#goal">/goal</a>
+          <a class="cmd-chip" href="Patterns_Manual.html#correction">자기 수정 패턴</a>
+        </div>
+      </div>
+      <div class="steps-title">단계별 실행</div>
+      <ol class="step-list">
+        <li>
+          <div class="step-content">
+            <strong>병렬 검증 요청</strong>
+            <p>오케스트레이터 에이전트에게 각 학급을 독립 서브에이전트에 위임하도록 지시한다.</p>
+            <div style="position:relative">
+              <pre class="code-block">attendance/ 폴더 안의 모든 학급 서브폴더를 찾아서, 각 폴더의 attendance.json 을 독립적인 서브에이전트로 병렬 검증해줘.
+각 서브에이전트는 (1) 중복 기록 제거 (2) 누락 기록 플래그 (3) validate_attendance.sh 통과 세 단계를 수행한다.
+모든 서브에이전트가 완료되면 학급별 결과(정상/오류 수/수정 건수)를 표로 집계해서 summary_report.md 에 저장해줘</pre>
+              <button class="copy-btn" onclick="copyCode(this)">복사</button>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="step-content">
+            <strong>요약 보고서 품질 검증</strong>
+            <p>보고서가 생성되면 자기 수정 루프로 품질을 높인다.</p>
+            <div style="position:relative">
+              <pre class="code-block">/goal summary_report.md 가 교장 보고용 형식(학급별 표, 총합 통계, 조치 필요 학급 강조)을 갖추도록 수정해줘. 최대 3번 시도</pre>
+              <button class="copy-btn" onclick="copyCode(this)">복사</button>
+            </div>
+          </div>
+        </li>
+      </ol>
+      <div class="flow-box">
+        오케스트레이터 에이전트가 학급 목록을 조회한 뒤, 각 학급에 대해 서브에이전트를 병렬로 실행한다. 서브에이전트들은 독립적으로 파일을 처리하므로 충돌 없이 동시 실행이 가능하다. 모두 완료되면 오케스트레이터가 결과를 집계해 summary_report.md를 작성한다.
+      </div>
+      <div class="tip-box">
+        각 서브에이전트는 독립 파일만 수정해야 한다. 공유 파일(예: 학교 전체 마스터 DB)을 동시에 쓰면 충돌이 발생한다. 멀티 에이전트는 "읽기 → 독립 처리 → 오케스트레이터 집계" 구조를 유지할 것.
+      </div>
+      <div class="related-cmds">
+        <strong>함께 보기:</strong> <a href="Patterns_Manual.html#multi-agent">멀티 에이전트 루프 패턴 레퍼런스</a>, <a href="../tools/Tools_Examples.html#scenario-2">D-1 출석 데이터 자동 검증</a>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <p style="color: var(--text-dim); font-size: 12px; text-align: center;">
+    Claude Code 2026.07 기준 | 2026년 7월 4일<br>
+    <a href="Patterns_Manual.html">← 루프 설계 패턴 레퍼런스</a>
+  </p>
+</main>
+</div>
+<script>
+function copyCode(btn) {
+  const pre = btn.previousElementSibling || btn.parentElement.querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent).then(() => {
+    btn.textContent = '완료!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+</script>
+  <script src="../assets/inpage-search.js" defer></script>
+</body>
+</html>
